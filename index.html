@@ -1,0 +1,455 @@
+<index.html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>後設認知知識監控評量(KMA)體驗活動</title>
+
+<style>
+後設認知知識監控評量(KMA)體驗活動
+body{
+    font-family:"Microsoft JhengHei",sans-serif;
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+    background:#f4f6f9;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+h1{
+    text-align:center;
+}
+
+button{
+    background:#0078d4;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#005ea6;
+}
+
+.hidden{
+    display:none;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ccc;
+    padding:10px;
+    text-align:center;
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="page1">
+
+<div class="card">
+
+<h1>後設認知知識監控評量(KMA)體驗活動</h1>
+
+<p>
+請先閱讀題目，判斷自己是否有把握答對。
+</p>
+
+</div>
+
+<div id="predictionArea"></div>
+
+<button onclick="startQuiz()">
+開始正式作答
+</button>
+
+</div>
+
+<div id="page2" class="hidden">
+
+<div class="card">
+<h2>正式作答</h2>
+</div>
+
+<div id="quizArea"></div>
+
+<button onclick="submitQuiz()">
+提交答案
+</button>
+
+</div>
+
+<div id="page3" class="hidden">
+
+<div class="card">
+
+<h2>分析結果</h2>
+
+<div id="summary"></div>
+
+</div>
+
+<div id="detail"></div>
+
+<br>
+
+<button onclick="location.reload()">
+重新測驗
+</button>
+
+</div>
+
+<script>
+
+const questions = [
+
+{
+question:"何者最符合後設認知的概念？",
+options:[
+"背誦課本內容",
+"記錄老師講義",
+"監控與評估自己的學習狀況",
+"完成作業"
+],
+answer:2
+},
+
+{
+question:"如果學生知道自己哪裡會、哪裡不會，代表其具有較高的：",
+options:[
+"記憶能力",
+"後設認知能力",
+"智商",
+"注意力"
+],
+answer:1
+},
+
+{
+question:"哪一項較屬於 Monitoring（監控）？",
+options:[
+"抄筆記",
+"背定義",
+"確認自己是否真正理解內容",
+"瀏覽投影片"
+],
+answer:2
+},
+
+{
+question:"為何網路學習特別需要後設認知？",
+options:[
+"教材比較簡單",
+"老師會隨時提醒",
+"學生需自行規劃與調整學習",
+"考試比較少"
+],
+answer:2
+},
+
+{
+question:"高後設認知學習者最可能：",
+options:[
+"重複閱讀熟悉內容",
+"只關心成績",
+"能區分已知與未知內容",
+"完全依賴教師"
+],
+answer:2
+}
+
+];
+
+const predictionArea =
+document.getElementById("predictionArea");
+
+const quizArea =
+document.getElementById("quizArea");
+
+
+for(let i=0;i<questions.length;i++){
+
+predictionArea.innerHTML += `
+
+<div class="card">
+
+<h3>Q${i+1}</h3>
+
+<p>${questions[i].question}</p>
+
+<label>
+
+<input type="radio"
+name="predict${i}"
+value="yes">
+
+我有把握答對
+
+</label>
+
+<br><br>
+
+<label>
+
+<input type="radio"
+name="predict${i}"
+value="no">
+
+我沒有把握答對
+
+</label>
+
+</div>
+
+`;
+
+}
+
+
+for(let i=0;i<questions.length;i++){
+
+let html = `
+
+<div class="card">
+
+<h3>Q${i+1}</h3>
+
+<p>${questions[i].question}</p>
+
+`;
+
+for(let j=0;j<questions[i].options.length;j++){
+
+html += `
+
+<label>
+
+<input
+type="radio"
+name="answer${i}"
+value="${j}">
+
+${questions[i].options[j]}
+
+</label>
+
+<br><br>
+
+`;
+
+}
+
+html += "</div>";
+
+quizArea.innerHTML += html;
+
+}
+
+
+
+function startQuiz(){
+
+for(let i=0;i<questions.length;i++){
+
+const checked =
+document.querySelector(
+'input[name="predict'+i+'"]:checked'
+);
+
+if(!checked){
+
+alert("請完成所有信心評估");
+
+return;
+
+}
+
+}
+
+document.getElementById("page1")
+.classList.add("hidden");
+
+document.getElementById("page2")
+.classList.remove("hidden");
+
+}
+
+
+
+function submitQuiz(){
+
+let correct = 0;
+
+let over = 0;
+let under = 0;
+
+let rows = "";
+
+for(let i=0;i<questions.length;i++){
+
+const predict =
+document.querySelector(
+'input[name="predict'+i+'"]:checked'
+);
+
+const answer =
+document.querySelector(
+'input[name="answer'+i+'"]:checked'
+);
+
+if(!answer){
+
+alert("請完成所有題目");
+
+return;
+
+}
+
+const prediction =
+predict.value;
+
+const actual =
+Number(answer.value) ===
+questions[i].answer;
+
+if(actual){
+
+correct++;
+
+}
+
+if(
+prediction==="yes" &&
+!actual
+){
+
+over++;
+
+}
+
+if(
+prediction==="no" &&
+actual
+){
+
+under++;
+
+}
+
+rows += `
+
+<tr>
+
+<td>Q${i+1}</td>
+
+<td>
+${prediction==="yes"?
+"有把握":
+"沒把握"}
+</td>
+
+<td class="${
+actual ? "correct":"wrong"
+}">
+${actual?"答對":"答錯"}
+</td>
+
+</tr>
+
+`;
+
+}
+
+
+let type = "";
+
+if(over===0 && under===0){
+
+type="🎯 精準監控型";
+
+}
+else if(over>under){
+
+type="⚠️ 高估型";
+
+}
+else if(under>over){
+
+type="📉 低估型";
+
+}
+else{
+
+type="🔄 不穩定型";
+
+}
+
+document.getElementById("summary")
+.innerHTML = `
+
+<h3>${type}</h3>
+
+<p>答對題數：${correct}/5</p>
+
+<p>高估知識：${over} 題</p>
+
+<p>低估知識：${under} 題</p>
+
+`;
+
+document.getElementById("detail")
+.innerHTML = `
+
+<table>
+
+<tr>
+<th>題目</th>
+<th>信心評估</th>
+<th>作答結果</th>
+</tr>
+
+${rows}
+
+</table>
+
+`;
+
+document.getElementById("page2")
+.classList.add("hidden");
+
+document.getElementById("page3")
+.classList.remove("hidden");
+
+}
+
+</script>
+
+</body>
+</html>
